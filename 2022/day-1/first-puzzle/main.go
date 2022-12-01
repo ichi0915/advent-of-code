@@ -34,6 +34,18 @@ In case the Elves get hungry and need extra snacks, they need to know which Elf 
 In the example above, this is 24000 (carried by the fourth Elf).
 
 Find the Elf carrying the most Calories. How many total Calories is that Elf carrying?
+
+--- Part Two ---
+
+By the time you calculate the answer to the Elves' question, they've already realized that the Elf carrying the most Calories of food might eventually run out of snacks.
+
+To avoid this unacceptable situation, the Elves would instead like to know the total Calories carried by the top three Elves carrying the most Calories.
+That way, even if one of those Elves runs out of snacks, they still have two backups.
+
+In the example above, the top three Elves are the fourth Elf (with 24000 Calories), then the third Elf (with 11000 Calories), then the fifth Elf (with 10000 Calories).
+The sum of the Calories carried by these three elves is 45000.
+
+Find the top three Elves carrying the most Calories. How many Calories are those Elves carrying in total?
 */
 
 package main
@@ -43,6 +55,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sort"
 	"strconv"
 )
 
@@ -52,6 +65,9 @@ func main() {
 
 	maxCals := getElfMaxCalories(inventory)
 	fmt.Println("Max calories carried by one elf is: ", maxCals)
+
+	amountMaxCals := getAmountOfElfMaxCalories(inventory, 3)
+	fmt.Println("Max calories carried by 3 elf is: ", amountMaxCals)
 }
 
 func readFileData() [][]int {
@@ -60,6 +76,7 @@ func readFileData() [][]int {
 	readValue := 0
 
 	file, err := os.Open("puzzleInput.txt")
+	// file, err := os.Open("puzzleInputSimple.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -114,4 +131,40 @@ func getElfMaxCalories(arr [][]int) int {
 		}
 	}
 	return maxValue
+}
+
+func getAmountOfElfMaxCalories(arr [][]int, howManyMax int) int {
+	response := 0
+	maxValues := initEmptyArray(howManyMax)
+
+	for i := range arr {
+		currentVal := 0
+		for j := range arr[i] {
+			currentVal += arr[i][j]
+		}
+
+		for pos, val := range maxValues {
+			if currentVal > val {
+				// sort.Sort(sort.Reverse(sort.IntSlice(maxValues)))
+				maxValues[pos] = currentVal
+				sort.Ints(maxValues)
+				break
+			}
+		}
+	}
+
+	for _, val := range maxValues {
+		response += val
+	}
+	return response
+}
+
+func initEmptyArray(size int) []int {
+	var arr []int
+
+	for i := 0; i < size; i++ {
+		arr = append(arr, 0)
+	}
+
+	return arr
 }
