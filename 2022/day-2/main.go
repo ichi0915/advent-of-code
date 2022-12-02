@@ -52,6 +52,27 @@ Scores
 	0 if you lost
 	3 if the round was a draw
 	6 if you won
+
+
+--- Part Two ---
+
+The Elf finishes helping with the tent and sneaks back over to you. "Anyway, the second column says how the round needs to end: X means you need to lose,
+Y means you need to end the round in a draw, and Z means you need to win. Good luck!"
+
+The total score is still calculated in the same way, but now you need to figure out what shape to choose so the round ends as indicated. The example above now goes like this:
+
+    In the first round, your opponent will choose Rock (A), and you need the round to end in a draw (Y), so you also choose Rock. This gives you a score of 1 + 3 = 4.
+    In the second round, your opponent will choose Paper (B), and you choose Rock so you lose (X) with a score of 1 + 0 = 1.
+    In the third round, you will defeat your opponent's Scissors with Rock for a score of 1 + 6 = 7.
+
+Now that you're correctly decrypting the ultra top secret strategy guide, you would get a total score of 12.
+
+Following the Elf's instructions for the second column, what would your total score be if everything goes exactly according to your strategy guide?
+
+-- Data ichi --
+X means you need to lose,
+Y means you need to end the round in a draw,
+Z means you need to win.
 */
 
 package main
@@ -70,6 +91,9 @@ func main() {
 
 	score := calculateScore(encryptedStrategy)
 	fmt.Println("My score will be: ", score)
+
+	score = calculateNewScore(encryptedStrategy)
+	fmt.Println("My new score will be: ", score)
 }
 
 func readFileData() [][]string {
@@ -115,20 +139,34 @@ func calculateScore(arr [][]string) int {
 func getRoundScore(opponentChoice string, myChoice string) int {
 	score := 0
 
+	convertMyChoice(&myChoice)
+	// fmt.Println("opponentChoice: ", opponentChoice, " myChoice: ", myChoice)
+
 	score = getShapeScore(myChoice) + getOutcomeScore(opponentChoice, myChoice)
 
 	return score
+}
+
+func convertMyChoice(myChoice *string) {
+	switch {
+	case "X" == *myChoice:
+		*myChoice = "A"
+	case "Y" == *myChoice:
+		*myChoice = "B"
+	case "Z" == *myChoice:
+		*myChoice = "C"
+	}
 }
 
 func getShapeScore(myChoice string) int {
 	score := 0
 
 	switch {
-	case "X" == myChoice:
+	case "A" == myChoice:
 		score = 1
-	case "Y" == myChoice:
+	case "B" == myChoice:
 		score = 2
-	case "Z" == myChoice:
+	case "C" == myChoice:
 		score = 3
 	}
 
@@ -137,9 +175,6 @@ func getShapeScore(myChoice string) int {
 
 func getOutcomeScore(opponentChoice string, myChoice string) int {
 	score := 0
-
-	convertMyChoice(&myChoice)
-	// fmt.Println("opponentChoice: ", opponentChoice, " myChoice: ", myChoice)
 
 	/*
 		A for Rock,
@@ -166,13 +201,55 @@ func getOutcomeScore(opponentChoice string, myChoice string) int {
 	return score
 }
 
-func convertMyChoice(myChoice *string) {
-	switch {
-	case "X" == *myChoice:
-		*myChoice = "A"
-	case "Y" == *myChoice:
-		*myChoice = "B"
-	case "Z" == *myChoice:
-		*myChoice = "C"
+func calculateNewScore(arr [][]string) int {
+	score := 0
+
+	for i := range arr {
+		myChoice := howRoundNeedsToEnd(arr[i][0], arr[i][1])
+		score += getRoundScore(arr[i][0], myChoice)
 	}
+	return score
+}
+
+func howRoundNeedsToEnd(opponentChoice string, myChoice string) string {
+	/*
+		X means you need to lose,
+		Y means you need to end the round in a draw,
+		Z means you need to win.
+
+		X for Rock
+		Y for Paper
+		Z for Scissors
+	*/
+	switch {
+	//need to lose
+	case "X" == myChoice:
+		if opponentChoice == "A" { //He as Rock and I need Scissors
+			myChoice = "Z"
+		} else if opponentChoice == "B" { //He as Paper and I need Rock
+			myChoice = "X"
+		} else if opponentChoice == "C" { //He as Scissors and I need Paper
+			myChoice = "Y"
+		}
+	//need draw
+	case "Y" == myChoice:
+		if opponentChoice == "A" { //He as Rock and I need Rock
+			myChoice = "X"
+		} else if opponentChoice == "B" { //He as Paper and I need Paper
+			myChoice = "Y"
+		} else if opponentChoice == "C" { //He as Scissors and I need Scissors
+			myChoice = "Z"
+		}
+	//need win
+	case "Z" == myChoice:
+		if opponentChoice == "A" { //He as Rock and I need Paper
+			myChoice = "Y"
+		} else if opponentChoice == "B" { //He as Paper and I need Scissors
+			myChoice = "Z"
+		} else if opponentChoice == "C" { //He as Scissors and I need Rock
+			myChoice = "X"
+		}
+	}
+
+	return myChoice
 }
