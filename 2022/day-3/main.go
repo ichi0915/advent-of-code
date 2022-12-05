@@ -42,6 +42,38 @@ Find the item type that appears in both compartments of each rucksack. What is t
 
 --- Part Two ---
 
+As you finish identifying the misplaced items, the Elves come to you with another issue.
+
+For safety, the Elves are divided into groups of three. Every Elf carries a badge that identifies their group. For efficiency, within each group of three Elves,
+the badge is the only item type carried by all three Elves. That is, if a group's badge is item type B, then all three Elves will have item type B somewhere in their rucksack,
+and at most two of the Elves will be carrying any other item type.
+
+The problem is that someone forgot to put this year's updated authenticity sticker on the badges.
+All of the badges need to be pulled out of the rucksacks so the new authenticity stickers can be attached.
+
+Additionally, nobody wrote down which item type corresponds to each group's badges.
+The only way to tell which item type is the right one is by finding the one item type that is common between all three Elves in each group.
+
+Every set of three lines in your list corresponds to a single group, but each group can have a different badge item type.
+So, in the above example, the first group's rucksacks are the first three lines:
+
+vJrwpWtwJgWrhcsFMMfFFhFp
+jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL
+PmmdzqPrVvPwwTWBwg
+
+And the second group's rucksacks are the next three lines:
+
+wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn
+ttgJtRGJQctTZtZT
+CrZsJsPPZsGzwwsLwLmpwMDw
+
+In the first group, the only item type that appears in all three rucksacks is lowercase r; this must be their badges. In the second group, their badge item type must be Z.
+
+Priorities for these items must still be found to organize the sticker attachment efforts: here, they are 18 (r) for the first group and 52 (Z) for the second group. The sum of these is 70.
+
+Find the item type that corresponds to the badges of each three-Elf group. What is the sum of the priorities of those item types?
+
+
 -- Data ichi --
 
 */
@@ -57,7 +89,7 @@ import (
 )
 
 func main() {
-	rucksackCompartments := readFileData()
+	rucksackCompartments := readFileData(1)
 	// print2DArray(rucksackCompartments)
 
 	compartmentsItem := getItemsInBothCompartments(rucksackCompartments)
@@ -65,11 +97,21 @@ func main() {
 
 	sum := getSumOfPriorities(compartmentsItem)
 	fmt.Println("Sum of the priorities: ", sum)
+
+	rucksack3SetsCompartments := readFileData(2)
+	// print2DArray2(rucksack3SetsCompartments)
+
+	compartmentsItem = getItemsIn3Compartments(rucksack3SetsCompartments)
+	// printArray(compartmentsItem)
+
+	sum = getSumOfPriorities(compartmentsItem)
+	fmt.Println("Sum of the 3 priorities: ", sum)
 }
 
-func readFileData() [][]string {
+func readFileData(typeOfArray int) [][]string {
 	var response [][]string
 	strategyValues := make([]string, 0)
+	counter := 0
 
 	file, err := os.Open("puzzleInput.txt")
 	// file, err := os.Open("puzzleInputSimple.txt")
@@ -80,10 +122,25 @@ func readFileData() [][]string {
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		len := len(scanner.Text()) / 2
-		readValue := scanner.Text()
+		if 1 == typeOfArray {
+			len := len(scanner.Text()) / 2
+			readValue := scanner.Text()
 
-		strategyValues = []string{readValue[:len], readValue[len:]}
+			strategyValues = []string{readValue[:len], readValue[len:]}
+			response = append(response, strategyValues)
+		} else {
+			if 3 == counter {
+				response = append(response, strategyValues)
+				strategyValues = make([]string, 0)
+				counter = 0
+			}
+			counter++
+			readValue := scanner.Text()
+			strategyValues = append(strategyValues, readValue)
+		}
+	}
+	//Verify if we added the last rucksack inventory
+	if 0 != counter {
 		response = append(response, strategyValues)
 	}
 
@@ -96,6 +153,12 @@ func readFileData() [][]string {
 func print2DArray(arr [][]string) {
 	for i := range arr {
 		fmt.Println(arr[i][0], " ", arr[i][1])
+	}
+}
+
+func print2DArray2(arr [][]string) {
+	for i := range arr {
+		fmt.Println(arr[i][0], " ", arr[i][1], " ", arr[i][2])
 	}
 }
 
@@ -133,6 +196,41 @@ func compareChars(arr [][]string, i int) string {
 func equals(str string, str2 string) bool {
 	response := false
 	if str == str2 {
+		response = true
+	}
+	return response
+}
+
+func getItemsIn3Compartments(arr [][]string) []string {
+	var items []string
+
+	for i := range arr {
+		char := compare3Chars(arr, i)
+		items = append(items, char)
+	}
+	return items
+}
+
+func compare3Chars(arr [][]string, i int) string {
+	resp := "0"
+
+	for _, char := range arr[i][0] {
+		for _, char2 := range arr[i][1] {
+			for _, char3 := range arr[i][2] {
+				if equals3(string(char), string(char2), string(char3)) {
+					resp = string(char)
+					break
+				}
+			}
+		}
+	}
+
+	return resp
+}
+
+func equals3(str string, str2 string, str3 string) bool {
+	response := false
+	if str == str2 && str2 == str3 {
 		response = true
 	}
 	return response
