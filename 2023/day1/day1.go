@@ -42,7 +42,6 @@ What is the sum of all of the calibration values?
 
 */
 
-// package main
 package day1
 
 import (
