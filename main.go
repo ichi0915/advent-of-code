@@ -6,6 +6,7 @@ import (
 	y22d5 "github.com/ichi0915/advent-of-code/2022/day5"
 	y23d1 "github.com/ichi0915/advent-of-code/2023/day1"
 	y23d2 "github.com/ichi0915/advent-of-code/2023/day2"
+	y23d3 "github.com/ichi0915/advent-of-code/2023/day3"
 )
 
 func main() {
@@ -24,6 +25,8 @@ func main() {
 			y23d1.Main()
 		} else if programToRun == 2 {
 			y23d2.Main()
+		} else if programToRun == 3 {
+			y23d3.Main()
 		} else {
 			y23d1.Main()
 		}
